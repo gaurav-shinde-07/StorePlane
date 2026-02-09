@@ -1,0 +1,39 @@
+@"
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kubernetes secrets (never commit)
+*secret*.yaml
+kubeconfig
+
+# Helm
+charts/*.tgz
+
+# Testing
+coverage/
+.nyc_output/
+"@ | Out-File -FilePath .gitignore -Encoding UTF8
