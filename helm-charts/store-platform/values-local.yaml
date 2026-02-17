@@ -1,0 +1,107 @@
+# Local development values for Kind cluster
+# Override production values for local environment
+
+global:
+  environment: development
+  domain: .local
+  ingressClass: nginx
+
+backend:
+  replicaCount: 1
+  
+  image:
+    repository: localhost:5001/store-platform-backend
+    tag: latest
+    pullPolicy: Never
+  
+  autoscaling:
+    enabled: false
+  
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  
+  env:
+    - name: NODE_ENV
+      value: "development"
+    - name: PORT
+      value: "4000"
+    - name: IN_CLUSTER
+      value: "true"
+    - name: DEFAULT_DOMAIN
+      value: ".local"
+    - name: INGRESS_CLASS
+      value: "nginx"
+    - name: MAX_STORES_PER_USER
+      value: "5"
+    - name: DEFAULT_CPU_REQUEST
+      value: "50m"
+    - name: DEFAULT_CPU_LIMIT
+      value: "200m"
+    - name: DEFAULT_MEMORY_REQUEST
+      value: "128Mi"
+    - name: DEFAULT_MEMORY_LIMIT
+      value: "512Mi"
+    - name: DEFAULT_STORAGE
+      value: "2Gi"
+
+dashboard:
+  replicaCount: 1
+  
+  image:
+    repository: localhost:5001/store-platform-dashboard
+    tag: latest
+    pullPolicy: Never
+  
+  autoscaling:
+    enabled: false
+  
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  
+  dashboard:
+    host: dashboard.local
+    path: /
+    pathType: Prefix
+  
+  backend:
+    host: api.local
+    path: /
+    pathType: Prefix
+
+rbac:
+  enabled: true
+
+security:
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+
+resourceQuotas:
+  enabled: true
+  cpu: "1"
+  memory: "2Gi"
+  storage: "20Gi"
+  persistentVolumeClaims: "10"
+
+networkPolicies:
+  enabled: false
+
+storageClass: standard

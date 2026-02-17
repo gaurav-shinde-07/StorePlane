@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: store-platform-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  domain: {{ .Values.global.domain | quote }}
+  environment: {{ .Values.global.environment | quote }}
+  ingressClass: {{ .Values.global.ingressClass | quote }}

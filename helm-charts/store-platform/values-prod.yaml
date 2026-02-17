@@ -1,0 +1,98 @@
+# Production values for VPS/k3s deployment
+
+global:
+  environment: production
+  domain: .yourdomain.com  # Change this to your actual domain
+  ingressClass: nginx
+
+backend:
+  replicaCount: 2
+  
+  image:
+    repository: your-registry/store-platform-backend
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+dashboard:
+  replicaCount: 2
+  
+  image:
+    repository: your-registry/store-platform-dashboard
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  
+  tls:
+    enabled: true
+    secretName: store-platform-tls
+  
+  dashboard:
+    host: dashboard.yourdomain.com
+    path: /
+    pathType: Prefix
+  
+  backend:
+    host: api.yourdomain.com
+    path: /
+    pathType: Prefix
+
+rbac:
+  enabled: true
+
+security:
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+resourceQuotas:
+  enabled: true
+  cpu: "4"
+  memory: "8Gi"
+  storage: "50Gi"
+  persistentVolumeClaims: "10"
+
+networkPolicies:
+  enabled: true
+
+storageClass: local-path  # k3s default storage class
+
+monitoring:
+  enabled: true

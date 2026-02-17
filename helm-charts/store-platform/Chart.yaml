@@ -1,0 +1,18 @@
+apiVersion: v2
+name: store-platform
+description: A Helm chart for Store Platform - Kubernetes Store Orchestration
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - kubernetes
+  - ecommerce
+  - store
+  - orchestration
+  - medusa
+  - woocommerce
+maintainers:
+  - name: Store Platform Team
+home: https://github.com/yourusername/store-platform
+sources:
+  - https://github.com/yourusername/store-platform

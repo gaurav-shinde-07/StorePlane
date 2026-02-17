@@ -1,0 +1,70 @@
+{{- if .Values.dashboard.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: dashboard
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: frontend
+spec:
+  type: {{ .Values.dashboard.service.type }}
+  ports:
+    - port: {{ .Values.dashboard.service.port }}
+      targetPort: {{ .Values.dashboard.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: dashboard
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+---
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: store-platform-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.dashboard.host }}
+        - {{ .Values.ingress.backend.host }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  {{- end }}
+  rules:
+    # Dashboard rule
+    - host: {{ .Values.ingress.dashboard.host }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.dashboard.path }}
+            pathType: {{ .Values.ingress.dashboard.pathType }}
+            backend:
+              service:
+                name: dashboard
+                port:
+                  number: {{ .Values.dashboard.service.port }}
+    # Backend API rule
+    - host: {{ .Values.ingress.backend.host }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.backend.path }}
+            pathType: {{ .Values.ingress.backend.pathType }}
+            backend:
+              service:
+                name: backend
+                port:
+                  number: {{ .Values.backend.service.port }}
+{{- end }}
